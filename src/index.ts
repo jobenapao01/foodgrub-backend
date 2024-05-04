@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import restaurantRoute from './routes/RestaurantRoute';
 import myUserRoute from './routes/MyUserRoute';
 import myRestaurantRoute from './routes/MyRestaurantRoute';
+import orderRoute from './routes/OrderRoute';
 
 mongoose.connect(process.env.MONGODB_CONNECTION_STRING as string).then(() => console.log('Connected to the database'));
 
@@ -19,8 +20,13 @@ cloudinary.config({
 const app = express();
 
 //Middlewares
-app.use(express.json());
+
 app.use(cors());
+
+//stripe webhook endpoint middleware
+app.use('/api/order/checkout/webhook', express.raw({ type: '*/*' }));
+
+app.use(express.json());
 
 app.get('/health', async (req: Request, res: Response) => {
 	res.send({
@@ -32,6 +38,7 @@ app.get('/health', async (req: Request, res: Response) => {
 app.use('/api/restaurant', restaurantRoute);
 app.use('/api/my/user', myUserRoute);
 app.use('/api/my/restaurant', myRestaurantRoute);
+app.use('/api/order', orderRoute);
 
 const PORT = 7000 || process.env.PORT;
 
