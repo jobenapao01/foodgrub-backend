@@ -3,6 +3,8 @@ import multer from 'multer';
 import {
 	createMyRestaurant,
 	getMyRestaurant,
+	getMyRestaurantOrders,
+	updateMyOrderStatus,
 	updateMyRestaurant,
 } from '../controllers/MyRestaurantController';
 import { jwtCheck, jwtParse } from '../middleware/auth';
@@ -20,22 +22,10 @@ const upload = multer({
 });
 
 // /api/my/restaurant
-router.post(
-	'/',
-	upload.single('imageFile'),
-	validateMyRestaurantRequest,
-	jwtCheck,
-	jwtParse,
-	createMyRestaurant
-);
+router.post('/', upload.single('imageFile'), validateMyRestaurantRequest, jwtCheck, jwtParse, createMyRestaurant);
+router.get('/order', jwtCheck, jwtParse, getMyRestaurantOrders);
 router.get('/', jwtCheck, jwtParse, getMyRestaurant);
-router.put(
-	'/',
-	upload.single('imageFile'),
-	validateMyRestaurantRequest,
-	jwtCheck,
-	jwtParse,
-	updateMyRestaurant
-);
+router.put('/', upload.single('imageFile'), validateMyRestaurantRequest, jwtCheck, jwtParse, updateMyRestaurant);
+router.patch('/order/:orderId/status', jwtCheck, jwtParse, updateMyOrderStatus);
 
 export default router;

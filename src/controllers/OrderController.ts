@@ -23,6 +23,17 @@ type CheckoutSessionRequest = {
 	restaurantId: string;
 };
 
+export const getMyOrders = async (req: Request, res: Response) => {
+	try {
+		const orders = await Order.find({ user: req.userId }).populate('restaurant').populate('user');
+
+		res.json(orders);
+	} catch (error) {
+		console.log(error);
+		res.status(500).json({ message: 'Something went wrong' });
+	}
+};
+
 export const createCheckoutSession = async (req: Request, res: Response) => {
 	try {
 		const checkoutSessionRequest: CheckoutSessionRequest = req.body;
@@ -33,6 +44,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 			throw new Error('Restaurant not found');
 		}
 
+		//initialized order value upon placing order
 		const newOrder = new Order({
 			restaurant: restaurant,
 			user: req.userId,
@@ -44,6 +56,7 @@ export const createCheckoutSession = async (req: Request, res: Response) => {
 
 		const lineItems = createLineItems(checkoutSessionRequest, restaurant.menuItems);
 
+		//create stripe session
 		const session = await createSession(
 			lineItems,
 			newOrder._id.toString(),
